@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify
 from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
@@ -78,17 +79,25 @@ workouts = {
     }
 }
 
+def update_workouts():
+    for category, exercises in workouts.items():
+        for exercise in exercises.values():
+            minutes_since_last = (datetime.now() - exercise['last_performed']).total_seconds() / 60.0
+            exercise['weight'] += (minutes_since_last / (24 * 60)) * exercise['increase_rate']
+            exercise['last_performed'] = datetime.now()
+
+# Initialize scheduler with your preferred args
+scheduler = BackgroundScheduler()
+# Schedule the function to be called every 5 minutes
+scheduler.add_job(update_workouts, 'interval', minutes=5)
+scheduler.start()
+
 @app.route('/')
 def home():
     return app.send_static_file('index.html')
 
 @app.route('/workouts')
 def get_workouts():
-    for category, exercises in workouts.items():
-        for exercise in exercises.values():
-            days_since_last = (datetime.now() - exercise['last_performed']).days
-            exercise['weight'] += days_since_last * exercise['increase_rate']
-            exercise['last_performed'] = datetime.now()
     # Converting the nested dict structure to a list of dicts for each circuit
     formatted_workouts = {circuit: [{'name': name, 'weight': data['weight'], 'sets': data['sets'], 'reps': data['reps']} for name, data in exercises.items()] for circuit, exercises in workouts.items()}
     return jsonify(formatted_workouts)
