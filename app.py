@@ -80,12 +80,18 @@ workouts = {
 
 @app.route('/')
 def home():
+    return app.send_static_file('index.html')
+
+@app.route('/workouts')
+def get_workouts():
     for category, exercises in workouts.items():
         for exercise in exercises.values():
             days_since_last = (datetime.now() - exercise['last_performed']).days
             exercise['weight'] += days_since_last * exercise['increase_rate']
             exercise['last_performed'] = datetime.now()
-    return render_template('index.html', workouts=workouts)
+    # Converting the nested dict structure to a list of dicts for each circuit
+    formatted_workouts = {circuit: [{'name': name, 'weight': data['weight'], 'sets': data['sets'], 'reps': data['reps']} for name, data in exercises.items()] for circuit, exercises in workouts.items()}
+    return jsonify(formatted_workouts)
 
 if __name__ == '__main__':
     app.run(debug=True)
