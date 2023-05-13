@@ -47,55 +47,38 @@
     <div id="workout-program"></div>
 
     <script>
-        var workoutProgram = {
-            "Back Circuit": [
-                {name: "Lat Pull Downs (Palm Inwards)", weight: "120lbs", sets: "3x8"},
-                {name: "Low Rows/Horizontal Row", weight: "100lbs", sets: "3x8"},
-                {name: "Shrugs", weight: "60lbs", sets: "3x8"},
-                {name: "Deadlifts", weight: "275lbs", sets: "4x4"}
-            ],
-            "Chest Circuit": [
-                {name: "Bench Press", weight: "185/175lbs", sets: "4x4"},
-                {name: "Seated Jaunt", weight: "140lbs", sets: "3x8"},
-                {name: "Fly Variations (3 types)", weight: "TBD", sets: "TBD"}
-            ],
-            "Shoulders": [
-                {name: "Military Press", weight: "105lbs", sets: "4x4"}
-            ],
-            "Triceps": [
-                {name: "Dips Machine", weight: "180lbs", sets: "3x8"},
-                {name: "French Press", weight: "65lbs", sets: "3x8"}
-            ]
-        };
+        fetch('/workouts')
+            .then(response => response.json())
+            .then(workoutProgram => {
+                var programDiv = document.getElementById('workout-program');
+                for (var circuit in workoutProgram) {
+                    var circuitDiv = document.createElement('div');
+                    circuitDiv.className = 'circuit';
 
-        var programDiv = document.getElementById('workout-program');
-        for (var circuit in workoutProgram) {
-            var circuitDiv = document.createElement('div');
-            circuitDiv.className = 'circuit';
+                    var circuitTitle = document.createElement('h2');
+                    circuitTitle.textContent = circuit;
+                    circuitDiv.appendChild(circuitTitle);
 
-            var circuitTitle = document.createElement('h2');
-            circuitTitle.textContent = circuit;
-            circuitDiv.appendChild(circuitTitle);
+                    workoutProgram[circuit].forEach(function(exercise) {
+                        var exerciseDiv = document.createElement('div');
+                        exerciseDiv.className = 'exercise';
 
-            workoutProgram[circuit].forEach(function(exercise) {
-                var exerciseDiv = document.createElement('div');
-                exerciseDiv.className = 'exercise';
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = exercise.name;
+                        exerciseDiv.appendChild(checkbox);
 
-                var checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = exercise.name;
-                exerciseDiv.appendChild(checkbox);
+                        var label = document.createElement('label');
+                        label.htmlFor = exercise.name;
+                        label.textContent = ' ' + exercise.name + ' - ' + exercise.weight + 'lbs ' + exercise.sets + 'x' + exercise.reps;
+                        exerciseDiv.appendChild(label);
 
-                var label = document.createElement('label');
-                label.htmlFor = exercise.name;
-                label.textContent = ' ' + exercise.name + ' - ' + exercise.weight + ' ' + exercise.sets;
-                exerciseDiv.appendChild(label);
+                        circuitDiv.appendChild(exerciseDiv);
+                    });
 
-                circuitDiv.appendChild(exerciseDiv);
+                    programDiv.appendChild(circuitDiv);
+                }
             });
-
-            programDiv.appendChild(circuitDiv);
-        }
     </script>
 </body>
 </html>
