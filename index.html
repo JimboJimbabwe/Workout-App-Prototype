@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workout Program</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #5b247a, #1bcedf);
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #workout-program {
+            max-width: 800px;
+            width: 100%;
+        }
+        .circuit {
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .circuit h2 {
+            color: #ddd;
+        }
+        .exercise {
+            margin-bottom: 10px;
+        }
+        @media (max-width: 600px) {
+            body {
+                font-size: 0.8em;
+            }
+            .circuit {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="workout-program"></div>
+
+    <script>
+        fetch('/workouts')
+            .then(response => response.json())
+            .then(workoutProgram => {
+                var programDiv = document.getElementById('workout-program');
+                for (var circuit in workoutProgram) {
+                    var circuitDiv = document.createElement('div');
+                    circuitDiv.className = 'circuit';
+
+                    var circuitTitle = document.createElement('h2');
+                    circuitTitle.textContent = circuit;
+                    circuitDiv.appendChild(circuitTitle);
+
+                    workoutProgram[circuit].forEach(function(exercise) {
+                        var exerciseDiv = document.createElement('div');
+                        exerciseDiv.className = 'exercise';
+
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = exercise.name;
+                        exerciseDiv.appendChild(checkbox);
+
+                        var label = document.createElement('label');
+                        label.htmlFor = exercise.name;
+                        label.textContent = ' ' + exercise.name + ' - ' + exercise.weight + 'lbs ' + exercise.sets + 'x' + exercise.reps;
+                        exerciseDiv.appendChild(label);
+
+                        circuitDiv.appendChild(exerciseDiv);
+                    });
+
+                    programDiv.appendChild(circuitDiv);
+                }
+            });
+    </script>
+</body>
+</html>
